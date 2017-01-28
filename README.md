@@ -32,4 +32,4 @@ document.getElementById('myElementID').addEventListener('pickedColor', (e) => {
 
 See example.html for working example.
 
-![alt text](https://github.com/rryanwatson/Micro-Picker/img.png "Logo Title Text 1")
+![alt text](img.png "microPicker in action")
