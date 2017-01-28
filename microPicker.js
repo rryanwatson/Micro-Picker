@@ -1,6 +1,6 @@
 let microPicker = (function() {
 
-    let stag = document.getElementById("microPicker");
+    let stag = document.getElementById("_mp");
     
 
     let canvas;
@@ -14,6 +14,7 @@ let microPicker = (function() {
     const canvasWidth = parseInt(stag.getAttribute("data-width"));
     const canvasHeight = parseInt(stag.getAttribute("data-height"));
     const layout = parseInt(stag.getAttribute("data-layout"));
+    
     const sixth = canvasWidth/6;
     const sixth2 = sixth*2;
     const sixth3 = sixth*3;
@@ -23,11 +24,15 @@ let microPicker = (function() {
     const colorPickedRectWidth = canvasWidth/layout;
 
 
+    var userElement = document.getElementById(stag.getAttribute("data-appendto"));
+
+
     colorPickedEvent = new CustomEvent('pickedColor',{'detail':pickedColor,bubbles:false});
 
     canvas = document.createElement('canvas');
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
+    canvas.id = 'microPicker';
     context = canvas.getContext('2d', {alpha:false});
     //document.body.appendChild(canvas);
     iData = context.getImageData(0,0,canvas.width,canvas.height);
@@ -58,7 +63,7 @@ let microPicker = (function() {
             pickedColor.g = sColor.g;
             pickedColor.b = sColor.b;
             drawBot();
-            canvas.dispatchEvent(colorPickedEvent);
+            userElement.dispatchEvent(colorPickedEvent);
         } else if(left > width/layout) {
             let y = li(top,0,0,height,canvasHeight);
             let d = context.getImageData(x,y,1,1);
@@ -66,7 +71,7 @@ let microPicker = (function() {
             pickedColor.g = d.data[1];
             pickedColor.b = d.data[2];
             drawBot();
-            canvas.dispatchEvent(colorPickedEvent);
+            userElement.dispatchEvent(colorPickedEvent);
         }
         
 
@@ -137,13 +142,9 @@ let microPicker = (function() {
         return y1 + (x-x1)*((y2-y1)/(x2-x1));
     }
 
-    return canvas;
+    
+    userElement.appendChild(canvas);
 
 
 })();
 
-document.body.appendChild(microPicker);
-
-microPicker.addEventListener('pickedColor', (e) => {
-    //console.log(e.detail);
-});

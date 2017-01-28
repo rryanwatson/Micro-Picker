@@ -1,0 +1,26 @@
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title></title>
+        <!--
+        <style>
+            canvas {
+                /*image-rendering: pixelated;*/
+                image-rendering: -moz-crisp-edges;
+                image-rendering: -o-crisp-edges;
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: pixelated;
+                -ms-interpolation-mode: nearest-neighbor;
+            }
+        </style>
+        -->
+        <script id="_mp" src="microPicker.js" data-width="400" data-height="80" data-layout="5" data-appendto="body" async></script>
+    </head>
+    <body id="body">
+        <script>
+            document.getElementById('body').addEventListener('pickedColor', function(e) {
+                console.log(e.detail);
+            });
+        </script>
+    </body>
+</html>
