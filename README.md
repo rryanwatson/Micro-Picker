@@ -1,5 +1,5 @@
 # Micro-Picker
-A simple color picker that can be resized.
+A simple color picker that can be almost any size you want it to be.
 
 ### Usage:
 
