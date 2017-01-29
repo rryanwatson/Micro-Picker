@@ -6,12 +6,10 @@ A simple color picker that can be resized.
 Insert this script tag into your html:
 
 ```HTML
-<script id="_mp" src="microPicker.js" data-width="400" data-height="80" data-layout="5" data-appendto="myElementID"></script>
+<script src="microPicker.js" data-width="400" data-height="80" data-layout="5" data-appendto="myElementID"></script>
 ```
 
-**id="_mp"**   - Required so that microPicker.<spand></span>js can get the script tag.
-
-**src="microPicker.<spand></span>js"**  - The javascript file that creates the micropicker.
+**src="microPicker.<spand></span>js" OR src="minified_microPicker.<spand></span>js"**  - The javascript file that creates the micropicker.
 
 **data-width** {number}   - Integer that defines the width of the created micropicker.
 

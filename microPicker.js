@@ -1,32 +1,36 @@
-let microPicker = (function() {
+var microPicker = (function() {
 
-    let stag = document.getElementById("_mp");
+
+    var htmlCollection;
+    var canvas;
+    var context;
+    var iData;
+    var topPickedColor = {r:255,g:0,b:0};
+    var pickedColor = {r:255,g:0,b:0};
+    var canvasWidth;
+    var canvasHeight;
+    var layout;
+    var topHeight;
+    var colorPickedRectWidth;
+    var userElement;
+
+
+    //Get the attributes on the script tag that loads this file.
+    htmlCollection = document.getElementsByTagName('script');
+    for(var i = 0; i < htmlCollection.length; i++) {
+        if(htmlCollection[i].getAttribute('src') === 'microPicker.js' || htmlCollection[i].getAttribute('src') === 'minified_microPicker.js' ) {
+            canvasWidth = parseInt(htmlCollection[i].getAttribute("data-width"));
+            canvasHeight = parseInt(htmlCollection[i].getAttribute("data-height"));
+            layout = parseInt(htmlCollection[i].getAttribute("data-layout"));
+            userElement = document.getElementById(htmlCollection[i].getAttribute("data-appendto"));
+        }
+    }
+
     
 
-    let canvas;
-    let context;
-    let iData;
-    let vr = 255,vg = 0,vb = 0;
-    let sColor = {r:255,g:0,b:0};
-    let pickedColor = {r:255,g:0,b:0};
-    let event;
-
-    const canvasWidth = parseInt(stag.getAttribute("data-width"));
-    const canvasHeight = parseInt(stag.getAttribute("data-height"));
-    const layout = parseInt(stag.getAttribute("data-layout"));
+    topHeight = canvasHeight/layout;
+    colorPickedRectWidth = canvasWidth/layout;
     
-    const sixth = canvasWidth/6;
-    const sixth2 = sixth*2;
-    const sixth3 = sixth*3;
-    const sixth4 = sixth*4;
-    const sixth5 = sixth*5;
-    const sliderHeight = canvasHeight/layout;
-    const colorPickedRectWidth = canvasWidth/layout;
-
-
-    var userElement = document.getElementById(stag.getAttribute("data-appendto"));
-
-
     colorPickedEvent = new CustomEvent('pickedColor',{'detail':pickedColor,bubbles:false});
 
     canvas = document.createElement('canvas');
@@ -34,54 +38,24 @@ let microPicker = (function() {
     canvas.height = canvasHeight;
     canvas.id = 'microPicker';
     context = canvas.getContext('2d', {alpha:false});
-    //document.body.appendChild(canvas);
-    iData = context.getImageData(0,0,canvas.width,canvas.height);
-    if(stag.getAttribute("data-tryantialias") == "true") {
-        canvas.setAttribute("style", "image-rendering: pixelated;");
+    if(!context) {
+        console.log('Unable to create the canvas 2d context. Update your browser.');
+        return;
     }
-    //canvas.style.width = "20%";
-    //canvas.style.height = "5%";
-    //canvas.style.cursor = "crosshair";
-    canvas.addEventListener('click',(e) => {
 
-        let style = window.getComputedStyle(canvas);
-        let width = parseInt(style.getPropertyValue('width').replace(/px/,""));
-        let height = parseInt(style.getPropertyValue('height').replace(/px/,""));
-        let br = canvas.getBoundingClientRect();
-        let left = e.clientX - br.left;
-        let top = e.clientY - br.top;
-
-        let x = li(left,0,0,width,canvasWidth);
-        
-        if(top < height/layout) {
-            let y = 0;
-            let d = context.getImageData(x,y,1,1);
-            sColor.r = d.data[0];
-            sColor.g = d.data[1];
-            sColor.b = d.data[2];
-            pickedColor.r = sColor.r;
-            pickedColor.g = sColor.g;
-            pickedColor.b = sColor.b;
-            drawBot();
-            userElement.dispatchEvent(colorPickedEvent);
-        } else if(left > width/layout) {
-            let y = li(top,0,0,height,canvasHeight);
-            let d = context.getImageData(x,y,1,1);
-            pickedColor.r = d.data[0];
-            pickedColor.g = d.data[1];
-            pickedColor.b = d.data[2];
-            drawBot();
-            userElement.dispatchEvent(colorPickedEvent);
-        }
-        
-
-    },false);
+    iData = context.getImageData(0,0,canvas.width,canvas.height);
 
 
-
-    for(let y = 0; y < sliderHeight; y++) {
-        for(let x = 0; x < canvas.width; x++) {
-            let i = 4*(x + y*canvas.width);
+    // draw the top portion of the picker----------------
+    var sixth = canvasWidth/6;
+    var sixth2 = sixth*2;
+    var sixth3 = sixth*3;
+    var sixth4 = sixth*4;
+    var sixth5 = sixth*5;
+    var vr = 255,vg = 0,vb = 0;
+    for(var y = 0; y < topHeight; y++) {
+        for(var x = 0; x < canvas.width; x++) {
+            var i = 4*(x + y*canvas.width);
             iData.data[i] = vr;
             iData.data[i+1] = vg;
             iData.data[i+2] = vb;
@@ -101,21 +75,61 @@ let microPicker = (function() {
             } 
         }
     }
+    //---------------------------------------------------
 
     drawBot();
+    userElement.appendChild(canvas);
 
 
 
+    //get the color that was clicked when the click event happens
+    canvas.addEventListener('click',function(e) {
+
+        var style = window.getComputedStyle(canvas);
+        var width = parseInt(style.getPropertyValue('width').replace(/px/,""));
+        var height = parseInt(style.getPropertyValue('height').replace(/px/,""));
+        var br = canvas.getBoundingClientRect();
+        var left = e.clientX - br.left;
+        var top = e.clientY - br.top;
+
+        var x = li(left,0,0,width,canvasWidth);
+        
+        if(top < height/layout) {
+            var y = 0;
+            var d = context.getImageData(x,y,1,1);
+            topPickedColor.r = d.data[0];
+            topPickedColor.g = d.data[1];
+            topPickedColor.b = d.data[2];
+            pickedColor.r = topPickedColor.r;
+            pickedColor.g = topPickedColor.g;
+            pickedColor.b = topPickedColor.b;
+            drawBot();
+            userElement.dispatchEvent(colorPickedEvent);
+        } else if(left > width/layout) {
+            var y = li(top,0,0,height,canvasHeight);
+            var d = context.getImageData(x,y,1,1);
+            pickedColor.r = d.data[0];
+            pickedColor.g = d.data[1];
+            pickedColor.b = d.data[2];
+            drawBot();
+            userElement.dispatchEvent(colorPickedEvent);
+        }
+        
+
+    },false);
+
+
+    //** This function draws the bottom portion of the color picker. */
     function drawBot() {
-        let x1 = colorPickedRectWidth, y1 = 0, x2 = canvas.width, y2 = 0;
-        let y4 = 0;
-        let y6 = 0;
+        var x1 = colorPickedRectWidth, y1 = 0, x2 = canvas.width, y2 = 0;
+        var y4 = 0;
+        var y6 = 0;
 
-        for(let y = sliderHeight; y < canvas.height; y++) {
+        for(var y = topHeight; y < canvas.height; y++) {
 
 
-            for(let x = 0; x < canvas.width; x++) {
-                let i = 4*(x+y*canvas.width);
+            for(var x = 0; x < canvas.width; x++) {
+                var i = 4*(x+y*canvas.width);
 
                 if(x < colorPickedRectWidth) {
                     iData.data[i] = pickedColor.r;
@@ -128,22 +142,19 @@ let microPicker = (function() {
                 }
                 
             }
-            y1 = li(y,sliderHeight,0,canvasHeight,255);
-            y2 = li(y,sliderHeight,0,canvas.height,sColor.r);
-            y4 = li(y,sliderHeight,0,canvas.height,sColor.g);
-            y6 = li(y,sliderHeight,0,canvas.height,sColor.b);
+            y1 = li(y,topHeight,0,canvasHeight,255);
+            y2 = li(y,topHeight,0,canvas.height,topPickedColor.r);
+            y4 = li(y,topHeight,0,canvas.height,topPickedColor.g);
+            y6 = li(y,topHeight,0,canvas.height,topPickedColor.b);
 
         }
         context.putImageData(iData,0,0);
     }
 
-
+    //** Helper function that linearly interpolates. */
     function li(x,x1,y1,x2,y2) {
         return y1 + (x-x1)*((y2-y1)/(x2-x1));
     }
-
-    
-    userElement.appendChild(canvas);
 
 
 })();
